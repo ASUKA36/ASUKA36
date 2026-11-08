@@ -2,7 +2,7 @@
 
 Undergraduate in Computer Science and Technology, College of Information Science and Technology, Beijing University of Chemical Technology.
 
-I work on legged robots: hierarchical multi-agent reinforcement learning for cooperative carrying, and vision-plus-lidar docking of a wheeled-leg platform into a narrow bay. In a software-engineering course project I implemented image search for the mobile museum app and integrated it with the other services.
+I work on legged robots: hierarchical multi-agent reinforcement learning for cooperative carrying, and vision-plus-lidar docking of a wheeled-leg platform into a narrow bay. I led a course project on a museum knowledge system, defined its data and interfaces, and independently built the Pocket Museum app.
 
 ---
 
@@ -33,20 +33,20 @@ The `go2w_parking` package serves both Gazebo and the real robot through separat
 
 Code: [`auto_dock.py`](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/scripts/auto_dock.py) · [`auto_dock.yaml`](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/config/auto_dock.yaml) · [dynamics plugin](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_sim/src/go2w_dynamics_plugin.cpp) · [planar plugin](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_sim/src/go2w_planar_plugin.cpp) · [hardware launch](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/launch/auto_dock_real.launch)
 
-## 3. Image search and integration in the mobile museum app
+## 3. Museum knowledge system and Pocket Museum
 
 [software-engineering-2303](https://github.com/ASUKA36/software-engineering-2303)
 
-This is a software-engineering course project on Chinese artifacts held in overseas museums. The course group divided the system into knowledge-graph construction, a web knowledge service, question answering, a mobile app, and administration. I was responsible for the mobile app, Pocket Museum.
+This is a software-engineering course project on Chinese artifacts held in overseas museums. I was the project lead. I designed the database attributes, built the knowledge graph, defined the structural protocols between subsystems, and integrated the whole system. I also wrote the requirements analysis, test documents, user documents, and weekly development meeting notes.
 
-Within the app, page-level work was shared. I implemented:
+I independently developed the Pocket Museum subsystem:
 
-- Image search: ResNet50 with the classification head removed, cosine-similarity retrieval, and an index stored as `vectors.npy` and `meta.json`
-- The offline index builder and the search-API integration
-- Endpoint configuration for the business API, the image API, and the question-answering API, plus health checks and test scripts
-- Integration of browsing, search, login, interaction, and upload
+- Image search with ResNet50, the classification head removed, and cosine-similarity retrieval. The index is `vectors.npy` and `meta.json`
+- Offline index construction and search-API integration
+- Endpoint configuration for the business API, the image API, and the question-answering API, together with health checks and test scripts
+- Integration of artifact browsing, search, login, interaction, and upload
 
-The client is HarmonyOS (ArkTS). The mobile service is Flask. List filtering uses Neo4j, and artifact details use MySQL. Graph crawling, the web frontend, the question-answering backend, and administration were built by other teammates. The in-app division of work is in [分工说明](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/分工说明.md).
+The client is HarmonyOS (ArkTS). The mobile service is Flask. List filtering uses Neo4j, and artifact details use MySQL.
 
 Code: [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/image_search.py) · [`build_image_index.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/build_image_index.py)
 
@@ -62,8 +62,8 @@ Code: [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/b
 | ROS, Gazebo, URDF, and custom model plugins | `go2w_sim` |
 | AprilTag pose, lidar corridor, and staged velocity control | `auto_dock.py` |
 | Shared simulation and hardware entry points | `auto_dock.launch`, `auto_dock_real.launch` |
-| Convolutional retrieval and an offline index | `image_search.py`, `build_image_index.py` |
-| Multi-service integration and tests | `Constants.ets`, `run_project_tests.py` |
+| Course-system lead: database attributes, knowledge graph, interface protocols, integration, and project documents | software-engineering-2303 |
+| Pocket Museum image retrieval, service endpoints, and client integration | `image_search.py`, `build_image_index.py`, `Constants.ets`, `run_project_tests.py` |
 
 The repositories use Python, PyTorch, Isaac Lab, HARL, ROS 1, Gazebo, AprilTag, RealSense D435i, Flask, Neo4j, MySQL, and HarmonyOS ArkTS.
 
@@ -73,7 +73,7 @@ The repositories use Python, PyTorch, Isaac Lab, HARL, ROS 1, Gazebo, AprilTag, 
 
 北京化工大学 · 信息科学与技术学院 · 计算机科学与技术本科
 
-我的工作主要在足式机器人：用分层多智能体强化学习做多机协作搬运，用视觉和激光把轮足平台对接进狭窄库位。软件工程课程项目中，我实现了掌上博物馆的以图搜图，并完成与其他子系统的联调。
+我的工作主要在足式机器人：用分层多智能体强化学习做多机协作搬运，用视觉和激光把轮足平台对接进狭窄库位。课程项目中，我担任海外文物知识系统的总负责人，并独立开发了掌上博物馆。
 
 ## 1. 多队 Go2 协作抬杆过门
 
@@ -102,20 +102,20 @@ Unitree Go2-W 根据 AprilTag（`tag36h11`）的相对位姿进入窄充电库�
 
 代码： [`auto_dock.py`](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/scripts/auto_dock.py) · [`auto_dock.yaml`](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/config/auto_dock.yaml) · [动力学插件](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_sim/src/go2w_dynamics_plugin.cpp) · [平面插件](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_sim/src/go2w_planar_plugin.cpp) · [实机 launch](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/launch/auto_dock_real.launch)
 
-## 3. 掌上博物馆中的以图搜图与联调
+## 3. 海外文物知识系统与掌上博物馆
 
 [software-engineering-2303](https://github.com/ASUKA36/software-engineering-2303)
 
-软件工程课程设计，面向海外馆藏中国文物。课程组将系统分为知识图谱构建、Web 知识服务、问答、移动端和后台管理。我负责移动端「掌上博物馆」。
+软件工程课程设计，面向海外馆藏中国文物。我是该系统的总负责人，负责数据库属性构建、知识图谱构建、各子系统之间的结构与协议对接、系统联调，以及需求分析、测试文档、用户文档和开发周会纪要的制定。
 
-应用内的页面由同学分工完成。我实现的部分包括：
+掌上博物馆子系统由我独立开发，包括：
 
 - 以图搜图：ResNet50 去掉分类头后提取特征，用余弦相似度检索，索引为 `vectors.npy` 与 `meta.json`
 - 离线建索引，以及搜索接口联调
 - 业务 API、图片 API、问答 API 的地址配置，健康检查和测试脚本
 - 文物浏览、搜索、登录、互动和上传的集成
 
-客户端是 HarmonyOS（ArkTS），移动端服务是 Flask，列表筛选使用 Neo4j，文物详情使用 MySQL。图谱爬取、Web 前端、问答后端和后台管理由其他同学完成。组内分工见 [分工说明](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/分工说明.md)。
+客户端是 HarmonyOS（ArkTS），移动端服务是 Flask，列表筛选使用 Neo4j，文物详情使用 MySQL。
 
 代码： [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/image_search.py) · [`build_image_index.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/build_image_index.py)
 
@@ -129,7 +129,7 @@ Unitree Go2-W 根据 AprilTag（`tag36h11`）的相对位姿进入窄充电库�
 | ROS、Gazebo、URDF 与自写模型插件 | `go2w_sim` |
 | AprilTag 位姿、激光走廊与分段速度控制 | `auto_dock.py` |
 | 仿真与实机共用控制入口 | `auto_dock.launch`、`auto_dock_real.launch` |
-| 卷积特征检索与离线索引 | `image_search.py`、`build_image_index.py` |
-| 多服务联调与测试 | `Constants.ets`、`run_project_tests.py` |
+| 课程系统总负责：数据库属性、知识图谱、接口协议、联调与项目文档 | software-engineering-2303 |
+| 掌上博物馆的图像检索、服务地址配置与客户端集成 | `image_search.py`、`build_image_index.py`、`Constants.ets`、`run_project_tests.py` |
 
 仓库中使用 Python、PyTorch、Isaac Lab、HARL、ROS 1、Gazebo、AprilTag、RealSense D435i、Flask、Neo4j、MySQL 与 HarmonyOS ArkTS。
