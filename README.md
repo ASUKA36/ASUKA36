@@ -1,12 +1,101 @@
-# 薛度扬（Xue Duyang）
+# Xue Duyang (薛度扬)
+
+Undergraduate in Computer Science and Technology, College of Information Science and Technology, Beijing University of Chemical Technology.
+
+My public work is on legged robots: hierarchical multi-agent reinforcement learning for cooperative carrying, and vision-plus-lidar docking of a wheeled-leg platform into a narrow bay. In a course project I owned the mobile subsystem, and my named module is image search plus integration with the other services.
+
+For a short read, follow the order below. Each item states the problem, the design, and the files to open.
+
+---
+
+## 1. Multi-team Go2 cooperative carry
+
+[unitree-go2-multi-team-cooperative-carry](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry)
+
+Two teams start on the south side of an arena. Each team is two Unitree Go2 robots lifting one half-round log, and the task is to pass through a door in the mid-wall. The low-level body controller is trained first and then frozen. The high level learns only the team skill for crossing the door. This is the most complete research-oriented project I have made public.
+
+The stack is Isaac Sim / Isaac Lab 4.5 and HARL, with MAPPO. The repository is an overlay of task environments, configs, training, and playback scripts for [IsaacLab-HARL](https://github.com/DIRECTLab/IsaacLab-HARL).
+
+| Layer | Design |
+|-------|--------|
+| Low-level body control | Two Go2 robots, shared MAPPO actor. 60-D observation (proprioception 13 + joint-related 36 + task 11) and a 12-D joint-position increment. At 50 Hz the policy tracks bar commands: normal velocity, yaw rate, along-axis velocity, and height. Episodes last 30 seconds. The log mesh is generated in code. |
+| High-level team skill | One `cooperation_skill` agent per team, shared parameters by default. At 1 Hz it outputs a 3-D velocity skill, which is decoded into the low-level bar command. Observations include a 12-ray 2D lidar, features of the other team, and the geodesic distance and gradient to the door. Episodes last 45 seconds. |
+| Scene | 15 m arena, east-west mid-wall, 2 m door. The distance field is a geodesic lookup table on an occupancy grid. Door-entry demonstration trajectories are used for imitation warmup. |
+| Training and checks | Imitation warmup with decay, and both shared and unshared actors. Ablations run from hierarchical hold, through denser sampling near the door and lateral shaping, to demonstration warmup. Imitation and hold logic also have tests that do not launch the Isaac GUI. |
+
+Open these first:
+
+- [Low-level task notes](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry/blob/main/low_level_speed/README.md) and [`go2_multi_agent_speed.py`](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry/blob/main/low_level_speed/source/isaaclab_tasks/isaaclab_tasks/direct/go2_multi_agent/go2_multi_agent_speed.py)
+- [High-level task notes](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry/blob/main/high_level_center_yard/README.md), [`go2_cooperation_skill.py`](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry/blob/main/high_level_center_yard/source/isaaclab_tasks/isaaclab_tasks/direct/go2_multi_agent/go2_cooperation_skill.py), and [`go2_center_yard_obstacle_field.py`](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry/blob/main/high_level_center_yard/source/isaaclab_tasks/isaaclab_tasks/direct/go2_multi_agent/go2_center_yard_obstacle_field.py)
+- Loading the frozen low-level weights: [`go2_pretrained_body_control.py`](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry/blob/main/high_level_center_yard/source/isaaclab_tasks/isaaclab_tasks/direct/go2_multi_agent/go2_pretrained_body_control.py)
+
+What this shows: the cooperative task is split into a freezable body controller and a trainable team skill, geodesic distance is part of the observation, and training, ablation, playback, and tests stay in one script set.
+
+## 2. Map-free Go2-W auto-dock
+
+[go2w-apriltag-autodock](https://github.com/ASUKA36/go2w-apriltag-autodock)
+
+Unitree Go2-W enters a narrow charging bay from the relative pose of an AprilTag (`tag36h11`), with no global map and no odometry. Mid-360 lidar can estimate the bay corridor on the final approach. Control has three stages: pre-align outside the bay, enter, and crouch. Velocity commands use longitudinal, lateral, and yaw components together, matching the platform's holonomic motion.
+
+The same `go2w_parking` package is attached to Gazebo and to the real robot by different launch files. Simulation includes a 2D scene, a 3D scene with the official meshes, and planar-motion and dynamics plugins written for this repository. The hardware launch starts the D435i color stream, tag detection for a chosen ID, and the same controller. The controller starts from a pose where the tag is already visible, and it stops when the tag is lost.
+
+Open these first:
+
+- The docking state machine [`auto_dock.py`](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/scripts/auto_dock.py) and the parameters [`auto_dock.yaml`](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/config/auto_dock.yaml)
+- The Gazebo [dynamics plugin](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_sim/src/go2w_dynamics_plugin.cpp) and [planar plugin](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_sim/src/go2w_planar_plugin.cpp)
+- The [hardware launch](https://github.com/ASUKA36/go2w-apriltag-autodock/blob/main/src/go2w_parking/launch/auto_dock_real.launch)
+
+What this shows: visual pose, a lidar corridor, and a velocity state machine are wired into ROS, and simulation and hardware share one control package. Code in this repository is Apache-2.0. The Go2-W meshes come from Unitree and are redistributed under BSD-3-Clause.
+
+## 3. Image search and integration in the mobile museum app
+
+[software-engineering-2303](https://github.com/ASUKA36/software-engineering-2303)
+
+Software engineering course project on Chinese artifacts held in overseas museums. The course group split the system into knowledge-graph construction, a web knowledge service, question answering, a mobile app, and administration. I was responsible for the mobile app, Pocket Museum.
+
+Pages inside the app were divided further. My named parts are:
+
+- Image search: ResNet50 with the classification head removed, cosine-similarity retrieval, and an index stored as `vectors.npy` and `meta.json`
+- The offline index builder and the search-API integration
+- Endpoint configuration for the business API, the image API, and the question-answering API, plus health checks and test scripts
+- Integration of browsing, search, login, interaction, and upload
+
+The client is HarmonyOS (ArkTS). The mobile service is Flask. List filtering uses Neo4j, and artifact details use MySQL. Crawling the graph, the web frontend, the question-answering backend, and administration are other teammates' subsystems.
+
+Open these first:
+
+- [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/image_search.py)
+- [`build_image_index.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/build_image_index.py)
+- [Mobile-app division of work](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/分工说明.md)
+
+What this shows: a rebuildable visual-retrieval module inside a system that was already split across services, with the client connected to each group's API.
+
+---
+
+## Skills and where to see them
+
+| Skill | Where |
+|-------|--------|
+| Hierarchical multi-agent RL: frozen low level, team-level high level | Speed and CenterYard tasks in cooperative carry |
+| Procedural scenes, rigid meshes, rewards, ablations, playback | `go2_multi_agent_center_yard.py`, the ablation script, `train.py` / `play.py` |
+| Occupancy grid and geodesic distance in the observation | `go2_center_yard_obstacle_field.py` and the lookup table |
+| ROS, Gazebo, URDF, custom model plugins | `go2w_sim` |
+| AprilTag pose, lidar corridor, staged velocity control | `auto_dock.py` |
+| Shared simulation and hardware entry points | `auto_dock.launch` and `auto_dock_real.launch` |
+| Convolutional retrieval and an offline index | `image_search.py`, `build_image_index.py` |
+| Multi-service integration and tests | `Constants.ets`, `run_project_tests.py` |
+
+Tools used in these repositories include Python, PyTorch, Isaac Lab, HARL, ROS 1, Gazebo, AprilTag, RealSense D435i, Flask, Neo4j, MySQL, and HarmonyOS ArkTS.
+
+---
+
+# 中文
 
 北京化工大学 · 信息科学与技术学院 · 计算机科学与技术本科
 
 我公开的工作主要在四足与轮足机器人：用分层多智能体强化学习做多机协作搬运，用视觉和激光把轮足平台对接进狭窄库位。课程项目中，我负责移动端的以图搜图，以及和其他子系统的联调。
 
 给老师看代码时，建议按下面的顺序。每项都写了问题、我做的设计，以及仓库里可以直接打开的文件。
-
----
 
 ## 1. 多队 Go2 协作抬杆过门
 
@@ -70,8 +159,6 @@ Unitree Go2-W 不依赖全局地图和里程计，用 AprilTag（`tag36h11`）�
 
 这里能看到的能力是：在已经拆开的多服务系统里交付一个可重建的视觉检索模块，并把客户端接到各组接口上。
 
----
-
 ## 能力与对应代码
 
 | 能力 | 在哪里 |
@@ -86,15 +173,3 @@ Unitree Go2-W 不依赖全局地图和里程计，用 AprilTag（`tag36h11`）�
 | 多服务联调与测试 | `Constants.ets`、`run_project_tests.py` |
 
 常用工具包括 Python、PyTorch、Isaac Lab、HARL、ROS 1、Gazebo、AprilTag、RealSense D435i，以及 Flask、Neo4j、MySQL、HarmonyOS ArkTS。
-
----
-
-## English
-
-I am an undergraduate in Computer Science and Technology at Beijing University of Chemical Technology. The two robotics repositories are the work I would like a faculty member to read.
-
-**Cooperative carry.** Two teams of Unitree Go2 robots carry half-round logs through a door in Isaac Lab 4.5 with HARL and MAPPO. A shared low-level policy tracks bar velocity at 50 Hz (60-D observation, 12-D joint increments) and is then frozen. Each team has one high-level skill agent at 1 Hz. Its 3-D action is decoded into the bar command. High-level observations include a 12-ray lidar, the other team, and a geodesic distance field on an occupancy grid. The repo is an overlay of environments, configs, training, ablation, and tests for IsaacLab-HARL.
-
-**Auto-dock.** A map-free docker for the wheeled-leg Unitree Go2-W. AprilTag `tag36h11` gives relative pose; Mid-360 lidar can estimate the bay corridor on the final approach. The controller pre-aligns, enters, and crouches, using longitudinal, lateral, and yaw velocity. The same ROS package has Gazebo launches (including custom planar and dynamics plugins) and a D435i hardware launch. It starts when the tag is already visible and stops if the tag is lost.
-
-**Course project.** In a museum knowledge-graph course system I owned the HarmonyOS mobile subsystem. My named module is image search: ResNet50 embeddings, cosine retrieval, an offline index, service endpoint configuration, and integration tests. Graph construction, the web service, question answering, and administration belong to other teammates. See `mobile_museum_app/分工说明.md`.
