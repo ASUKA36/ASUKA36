@@ -1,6 +1,6 @@
-# Xue Xiangyu (薛翔宇)
+# Xue Duyang (薛度扬)
 
-Undergraduate student in **Information Science and Technology**.  
+Undergraduate at **Beijing University of Chemical Technology (北京化工大学)**, College of Information Science and Technology.  
 I work on **quadruped robotics**, **multi-agent reinforcement learning**, and **hierarchical control**, with additional experience in **ROS**, **computer vision**, and **knowledge-graph systems**.
 
 GitHub is the public record of my course and research-oriented engineering. The projects below are the ones I would highlight in a university application.
@@ -74,7 +74,7 @@ Repositories are public. Each featured project has its own README with setup and
 
 ## 中文简介
 
-信息科学与技术专业本科生。主要方向为**四足机器人**、**多智能体强化学习**与**分层控制**，并具备 ROS、视觉对接与知识图谱系统开发经验。
+**北京化工大学**信息科学与技术学院本科生。主要方向为**四足机器人**、**多智能体强化学习**与**分层控制**，并具备 ROS、视觉对接与知识图谱系统开发经验。
 
 - [多智能体协作搬运](https://github.com/ASUKA36/unitree-go2-multi-team-cooperative-carry)：Isaac Lab + HARL 上的分层 MAPPO，双机抬杆速度跟踪 + 两队过门高层策略。
 - [Go2-W 自动入库对接](https://github.com/ASUKA36/go2w-apriltag-autodock)：无全局地图的 AprilTag 对接状态机，仿真与实机入口统一。
