@@ -2,7 +2,7 @@
 
 Undergraduate in Computer Science and Technology, College of Information Science and Technology, Beijing University of Chemical Technology.
 
-I work on legged robots: hierarchical multi-agent reinforcement learning for cooperative carrying, and vision-plus-lidar docking of a wheeled-leg platform into a narrow bay. I led a course project on a museum knowledge system, defined its data and interfaces, and independently built the Pocket Museum app.
+I work on legged robots: hierarchical multi-agent reinforcement learning for cooperative carrying, and vision-plus-lidar docking of a wheeled-leg platform into a narrow bay. For a steel-bar binding robot, I fit the ground plane from depth, fuse that mask with the color image, and detect top-layer intersections with YOLOv8. I led a course project on a museum knowledge system, defined its data and interfaces, and independently built the Pocket Museum app.
 
 ---
 
@@ -50,6 +50,21 @@ The client is HarmonyOS (ArkTS). The mobile service is Flask. List filtering use
 
 Code: [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/image_search.py) · [`build_image_index.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/build_image_index.py)
 
+## 4. Multi-layer steel bar intersection recognition
+
+[steel-bar-intersection-recognition](https://github.com/ASUKA36/steel-bar-intersection-recognition)
+
+A binding robot ties only the top layer, and each intersection is either still unbound or already bound. An Intel RealSense D435i captures RGB and depth together. Random patches on the depth image supply ground points from the depth histogram, because a pitched camera makes ground depth change with pixel position. Least squares fits `d = ax + by + c`. Shifting `c` raises that plane into the gap between the first and second layers, about 20 cm, and the binary mask is multiplied with the RGB image. YOLOv8n then sees the top layer only. MuLSIR-252 has 252 site images at three camera pitches (64 small, 67 medium, 121 large), split 6:2:2. On the test set the fused model reaches 95.5% precision, 94.7% recall, 98.8% mAP50, and 78.5% mAP50-95.
+
+| Stage | Design |
+|-------|--------|
+| Ground plane | Random depth patches. The histogram mode at a large depth is the ground point. Least squares fits the plane. |
+| Fusion | The separation plane sits in the gap between layers. `I_fused = I_rgb · M` keeps the top-layer color and blacks out the rest. |
+| Detector | YOLOv8n, 100 epochs, input size 840. Two binding-state classes, named `1` and `0` in `steel.yml`. The script exports ONNX. |
+| Dataset | MuLSIR-252. Boxes are drawn on the fused image and cover top-layer intersections only. |
+
+Code: [`train.py`](https://github.com/ASUKA36/steel-bar-intersection-recognition/blob/main/train.py) · [`steel.yml`](https://github.com/ASUKA36/steel-bar-intersection-recognition/blob/main/steel.yml)
+
 ---
 
 ## Technical background
@@ -61,11 +76,12 @@ Code: [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/b
 | Occupancy grid and geodesic distance in the observation | `go2_center_yard_obstacle_field.py` and the lookup table |
 | ROS, Gazebo, URDF, and custom model plugins | `go2w_sim` |
 | AprilTag pose, lidar corridor, and staged velocity control | `auto_dock.py` |
+| Depth-patch ground fitting, RGB–mask fusion, and YOLOv8 intersection detection | `train.py`, `steel.yml` |
 | Shared simulation and hardware entry points | `auto_dock.launch`, `auto_dock_real.launch` |
 | Course-system lead: database attributes, knowledge graph, interface protocols, integration, and project documents | software-engineering-2303 |
 | Pocket Museum image retrieval, service endpoints, and client integration | `image_search.py`, `build_image_index.py`, `Constants.ets`, `run_project_tests.py` |
 
-The repositories use Python, PyTorch, Isaac Lab, HARL, ROS 1, Gazebo, AprilTag, RealSense D435i, Flask, Neo4j, MySQL, and HarmonyOS ArkTS.
+The repositories use Python, PyTorch, Isaac Lab, HARL, ROS 1, Gazebo, AprilTag, RealSense D435i, Ultralytics YOLOv8, Flask, Neo4j, MySQL, and HarmonyOS ArkTS.
 
 ---
 
@@ -73,7 +89,7 @@ The repositories use Python, PyTorch, Isaac Lab, HARL, ROS 1, Gazebo, AprilTag, 
 
 北京化工大学 · 信息科学与技术学院 · 计算机科学与技术本科
 
-我的工作主要在足式机器人：用分层多智能体强化学习做多机协作搬运，用视觉和激光把轮足平台对接进狭窄库位。课程项目中，我担任海外文物知识系统的总负责人，并独立开发了掌上博物馆。
+我的工作主要在足式机器人：用分层多智能体强化学习做多机协作搬运，用视觉和激光把轮足平台对接进狭窄库位。面向钢筋绑扎机器人，我用深度图拟合地面、把掩膜与彩色图融合，再用 YOLOv8 检测顶层交点。课程项目中，我担任海外文物知识系统的总负责人，并独立开发了掌上博物馆。
 
 ## 1. 多队 Go2 协作抬杆过门
 
@@ -119,6 +135,21 @@ Unitree Go2-W 根据 AprilTag（`tag36h11`）的相对位姿进入窄充电库�
 
 代码： [`image_search.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/image_search.py) · [`build_image_index.py`](https://github.com/ASUKA36/software-engineering-2303/blob/main/mobile_museum_app/server/build_image_index.py)
 
+## 4. 多层钢筋交点识别
+
+[steel-bar-intersection-recognition](https://github.com/ASUKA36/steel-bar-intersection-recognition)
+
+绑扎机器人只绑顶层，并且要区分尚未绑扎和已经绑扎的交点。Intel RealSense D435i 同时采集彩色图和深度图。深度图上随机取块，用深度直方图得到地面点：相机俯仰时，地面深度随像素位置变化。最小二乘拟合 `d = ax + by + c`。把 `c` 抬到第一层和第二层之间约 20 cm 的间隙，得到二值掩膜，再与彩色图相乘。YOLOv8n 只看到顶层。MuLSIR-252 含 252 张现场图像，小、中、大三种俯仰角分别为 64、67、121 张，按 6:2:2 划分。融合模型在测试集上的精度为 95.5%，召回率为 94.7%，mAP50 为 98.8%，mAP50-95 为 78.5%。
+
+| 阶段 | 设计 |
+|------|------|
+| 地面拟合 | 深度图随机取块，较大深度上的直方图众数作为地面点，再用最小二乘拟合平面。 |
+| 图像融合 | 分离平面位于层间间隙。`I_fused = I_rgb · M` 保留顶层彩色，其余置黑。 |
+| 检测器 | YOLOv8n，100 个 epoch，输入尺寸 840。两个绑扎状态类别，在 `steel.yml` 中记为 `1` 和 `0`。脚本导出 ONNX。 |
+| 数据集 | MuLSIR-252。标注画在融合图上，只框顶层交点。 |
+
+代码： [`train.py`](https://github.com/ASUKA36/steel-bar-intersection-recognition/blob/main/train.py) · [`steel.yml`](https://github.com/ASUKA36/steel-bar-intersection-recognition/blob/main/steel.yml)
+
 ## 技术背景
 
 | 内容 | 所在位置 |
@@ -128,8 +159,9 @@ Unitree Go2-W 根据 AprilTag（`tag36h11`）的相对位姿进入窄充电库�
 | 占据栅格与测地距离进入观测 | `go2_center_yard_obstacle_field.py` 与查找表 |
 | ROS、Gazebo、URDF 与自写模型插件 | `go2w_sim` |
 | AprilTag 位姿、激光走廊与分段速度控制 | `auto_dock.py` |
+| 深度取块拟合地面、彩色与掩膜融合、YOLOv8 交点检测 | `train.py`、`steel.yml` |
 | 仿真与实机共用控制入口 | `auto_dock.launch`、`auto_dock_real.launch` |
 | 课程系统总负责：数据库属性、知识图谱、接口协议、联调与项目文档 | software-engineering-2303 |
 | 掌上博物馆的图像检索、服务地址配置与客户端集成 | `image_search.py`、`build_image_index.py`、`Constants.ets`、`run_project_tests.py` |
 
-仓库中使用 Python、PyTorch、Isaac Lab、HARL、ROS 1、Gazebo、AprilTag、RealSense D435i、Flask、Neo4j、MySQL 与 HarmonyOS ArkTS。
+仓库中使用 Python、PyTorch、Isaac Lab、HARL、ROS 1、Gazebo、AprilTag、RealSense D435i、Ultralytics YOLOv8、Flask、Neo4j、MySQL 与 HarmonyOS ArkTS。
